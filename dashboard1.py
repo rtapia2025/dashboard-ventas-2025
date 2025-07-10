@@ -23,7 +23,18 @@ filtro_mes = st.multiselect("Filtrar por mes", meses_disponibles, default=meses_
 
 df_filtrado = df[df["Mes"].isin(filtro_mes)]
 
-# --- Gráfico 1: Meta vs Facturado + GAP
+# --- KPIs resumen (dentro de primer gráfico)
+kpi_col1, kpi_col2, kpi_col3 = st.columns(3)
+kpi_col1.metric("Total Meta", f"$ {df_filtrado['Meta'].sum():,.2f}")
+kpi_col2.metric("Total Facturado", f"$ {df_filtrado['Facturado'].sum():,.2f}")
+kpi_col3.metric("GAP Total", f"$ {df_filtrado['GAP_calc'].sum():,.2f}")
+
+# Calcular % de avance
+meta_total = df_filtrado['Meta'].sum()
+fact_total = df_filtrado['Facturado'].sum()
+avance_pct = (fact_total / meta_total * 100) if meta_total != 0 else 0
+
+# --- Gráfico 1: Meta vs Facturado + GAP resaltado y % de avance
 fig1 = go.Figure()
 fig1.add_trace(go.Bar(x=df_filtrado["Mes"], y=df_filtrado["Meta"], name='Meta', marker_color='skyblue'))
 fig1.add_trace(go.Bar(x=df_filtrado["Mes"], y=df_filtrado["Facturado_total"], name='Facturado', marker_color='limegreen'))
@@ -40,12 +51,23 @@ for i, row in df_filtrado.iterrows():
             showlegend=False
         ))
 
+fig1.add_annotation(
+    text=f"Avance: {avance_pct:.1f}%",
+    xref="paper", yref="paper",
+    x=1.02, y=1.05,
+    showarrow=False,
+    font=dict(size=14, color="green"),
+    bgcolor="white",
+    bordercolor="black",
+    borderwidth=1
+)
+
 fig1.update_layout(
     barmode='group',
     title="Meta vs Facturado (+Backlog) por Mes",
     yaxis_title="Monto ($.)",
     xaxis_title="Mes",
-    height=400
+    height=500
 )
 
 # --- Gráficos de marcador de posición (pendientes de personalizar)
@@ -61,27 +83,17 @@ fig7 = placeholder_grafico(7)
 fig8 = placeholder_grafico(8)
 fig9 = placeholder_grafico(9)
 
-# --- Mostrar 9 gráficos (3 columnas x 3 filas)
-
-def mostrar_fila(fig_a, fig_b, fig_c):
-    col1, col2, col3 = st.columns(3)
+# --- Mostrar 6 gráficos (2 columnas x 3 filas)
+def mostrar_fila(fig_a, fig_b):
+    col1, col2 = st.columns(2)
     with col1: st.plotly_chart(fig_a, use_container_width=True)
     with col2: st.plotly_chart(fig_b, use_container_width=True)
-    with col3: st.plotly_chart(fig_c, use_container_width=True)
 
 st.markdown("## 🔹 Fila 1")
-mostrar_fila(fig1, fig2, fig3)
+mostrar_fila(fig1, fig2)
 
 st.markdown("## 🔹 Fila 2")
-mostrar_fila(fig4, fig5, fig6)
+mostrar_fila(fig3, fig4)
 
 st.markdown("## 🔹 Fila 3")
-mostrar_fila(fig7, fig8, fig9)
-
-# --- KPIs resumen
-st.markdown("---")
-st.subheader("📌 Resumen")
-kpi1, kpi2, kpi3 = st.columns(3)
-kpi1.metric("Total Meta", f"$ {df_filtrado['Meta'].sum():,.2f}")
-kpi2.metric("Total Facturado", f"$ {df_filtrado['Facturado'].sum():,.2f}")
-kpi3.metric("GAP Total", f"$ {df_filtrado['GAP_calc'].sum():,.2f}")
+mostrar_fila(fig5, fig6)
