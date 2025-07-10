@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 
-df = pd.read_excel("ventas_2025.xlsx", sheet_name="data1")
+df = pd.read_excel("Ventas-PROMELSA.xlsx", sheet_name="data1")
 df["Fac_backlog"] = df["Fac_backlog"].fillna(0)
 df["Facturado_total"] = df["Facturado"] + df["Fac_backlog"]
 df["GAP_calc"] = df["Meta"] - df["Facturado_total"]
