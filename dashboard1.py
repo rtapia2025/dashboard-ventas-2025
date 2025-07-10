@@ -68,7 +68,7 @@ fig1.add_annotation(
 
 fig1.update_layout(
     barmode='group',
-    title="Meta vs Facturado (+Backlog) por Mes",
+    title="Meta vs Facturado por Mes",
     yaxis_title="Monto ($.)",
     xaxis_title="Mes",
     height=500,
