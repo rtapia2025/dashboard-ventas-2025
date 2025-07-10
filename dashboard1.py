@@ -94,11 +94,11 @@ def mostrar_fila(fig_a, fig_b):
     with col1: st.plotly_chart(fig_a, use_container_width=True)
     with col2: st.plotly_chart(fig_b, use_container_width=True)
 
-st.markdown("## 🔹 Fila 1")
-mostrar_fila(fig1, fig2)
+#-- st.markdown("## 🔹 Fila 1")
+#-- mostrar_fila(fig1, fig2)
 
-st.markdown("## 🔹 Fila 2")
-mostrar_fila(fig3, fig4)
+#-- st.markdown("## 🔹 Fila 2")
+#-- mostrar_fila(fig3, fig4)
 
-st.markdown("## 🔹 Fila 3")
-mostrar_fila(fig5, fig6)
+#-- st.markdown("## 🔹 Fila 3")
+#-- mostrar_fila(fig5, fig6)
