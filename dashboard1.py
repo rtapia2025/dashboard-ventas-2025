@@ -57,18 +57,18 @@ kpi_text = (
 fig1.add_annotation(
     text=kpi_text,
     xref="paper", yref="paper",
-    x=1.28, y=0.5,
+    x=1.08, y=0.9,
     showarrow=False,
     align="left",
     font=dict(size=12),
     bgcolor="white",
-    bordercolor="white",
+    bordercolor="black",
     borderwidth=1
 )
 
 fig1.update_layout(
     barmode='group',
-    title="Meta vs Facturado por Mes",
+    title="Meta vs Facturado (+Backlog) por Mes",
     yaxis_title="Monto ($.)",
     xaxis_title="Mes",
     height=500,
@@ -94,11 +94,11 @@ def mostrar_fila(fig_a, fig_b):
     with col1: st.plotly_chart(fig_a, use_container_width=True)
     with col2: st.plotly_chart(fig_b, use_container_width=True)
 
-st.markdown("## 🔹 Fila 1")
+# st.markdown("## 🔹 Fila 1")
 mostrar_fila(fig1, fig2)
 
 st.markdown("## 🔹 Fila 2")
 mostrar_fila(fig3, fig4)
 
 st.markdown("## 🔹 Fila 3")
- mostrar_fila(fig5, fig6)
+mostrar_fila(fig5, fig6)
