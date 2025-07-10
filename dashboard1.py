@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 # Leer archivo Excel
 st.set_page_config(layout="wide", page_title="Dashboard Ventas 2025")
-st.markdown("<h2 style='margin-top:0;'>📊 Dashboard de Ventas | 2025</h2>", unsafe_allow_html=True)
+st.markdown("<h3 style='margin-top:0;'>📊 Dashboard de Ventas | 2025</h3>", unsafe_allow_html=True)
 
 # Leer Excel
 @st.cache_data
@@ -16,18 +16,32 @@ def cargar_datos():
 
 df = cargar_datos()
 
-# Filtros
-meses_disponibles = df["Mes"].unique()
+# --- Filtros (solo para Gráfico 1)
+trimestres_meses = {
+    "Q1": ["Enero", "Febrero", "Marzo"],
+    "Q2": ["Abril", "Mayo", "Junio"],
+    "Q3": ["Julio", "Agosto", "Septiembre"],
+    "Q4": ["Octubre", "Noviembre", "Diciembre"]
+}
 
-filtro_mes = st.multiselect("Filtrar por mes", meses_disponibles, default=meses_disponibles)
+colf1, colf2 = st.columns([1, 2])
 
-df_filtrado = df[df["Mes"].isin(filtro_mes)]
+with colf1:
+    trimestres_sel = st.multiselect("Trimestre", options=list(trimestres_meses.keys()), default=list(trimestres_meses.keys()))
+
+meses_disponibles = sorted(set(m for q in trimestres_sel for m in trimestres_meses[q]))
+
+with colf2:
+    meses_sel = st.multiselect("Mes", options=meses_disponibles, default=meses_disponibles)
+
+# Filtrar para gráfico 1
+df_filtrado = df[df["Mes"].isin(meses_sel)]
 
 # Calcular KPIs
-meta_total = df_filtrado['Meta'].sum()
-fact_total = df_filtrado['Facturado'].sum()
-gap_total = df_filtrado['GAP_calc'].sum()
-avance_pct = (fact_total / meta_total * 100) if meta_total != 0 else 0
+total_meta = df_filtrado['Meta'].sum()
+total_fact = df_filtrado['Facturado'].sum()
+total_gap = df_filtrado['GAP_calc'].sum()
+avance_pct = (total_fact / total_meta * 100) if total_meta != 0 else 0
 
 # --- Gráfico 1: Meta vs Facturado + GAP resaltado, % de avance y KPIs dentro del gráfico
 fig1 = go.Figure()
@@ -46,23 +60,23 @@ for i, row in df_filtrado.iterrows():
             showlegend=False
         ))
 
-# Agregar KPIs como anotaciones al costado de la leyenda (incluye % avance)
+# KPIs como anotaciones
 kpi_text = (
-    f"<b>Total Meta</b><br>$ {meta_total:,.2f}" +
-    f"<br><b>Total Facturado</b><br>$ {fact_total:,.2f}" +
-    f"<br><b>GAP Total</b><br><span style='color:{'red' if gap_total > 0 else 'blue'};'>$ {gap_total:,.2f}</span>" +
+    f"<b>Total Meta</b><br>$ {total_meta:,.2f}" +
+    f"<br><b>Total Facturado</b><br>$ {total_fact:,.2f}" +
+    f"<br><b>GAP Total</b><br><span style='color:{'red' if total_gap > 0 else 'blue'};'>$ {total_gap:,.2f}</span>" +
     f"<br><b>Avance</b><br>{avance_pct:.1f}%"
 )
 
 fig1.add_annotation(
     text=kpi_text,
     xref="paper", yref="paper",
-    x=1.28, y=0.5,
+    x=1.28, y=0.6,
     showarrow=False,
     align="left",
     font=dict(size=12),
     bgcolor="white",
-    bordercolor="white",
+    bordercolor="black",
     borderwidth=1
 )
 
@@ -72,7 +86,7 @@ fig1.update_layout(
     yaxis_title="Monto ($.)",
     xaxis_title="Mes",
     height=500,
-    margin=dict(r=250)  # más espacio a la derecha para anotaciones
+    margin=dict(r=250)
 )
 
 # --- Gráficos de marcador de posición (pendientes de personalizar)
