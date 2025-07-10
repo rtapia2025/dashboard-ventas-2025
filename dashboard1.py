@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 # Leer archivo Excel
 st.set_page_config(layout="wide", page_title="Dashboard Ventas 2025")
-st.markdown("<h3 style='margin-top:0;'>📊 Dashboard de Ventas | 2025</h3>", unsafe_allow_html=True)
+st.markdown("<h2 style='margin-top:0;'>📊 Dashboard de Ventas | 2025</h2>", unsafe_allow_html=True)
 
 # Leer Excel
 @st.cache_data
@@ -16,23 +16,9 @@ def cargar_datos():
 
 df = cargar_datos()
 
-# --- Filtros (solo para Gráfico 1)
-trimestres_meses = {
-    "Q1": ["Enero", "Febrero", "Marzo"],
-    "Q2": ["Abril", "Mayo", "Junio"],
-    "Q3": ["Julio", "Agosto", "Septiembre"],
-    "Q4": ["Octubre", "Noviembre", "Diciembre"]
-}
-
-colf1, colf2 = st.columns([1, 2])
-
-with colf1:
-    trimestres_sel = st.multiselect("Trimestre", options=list(trimestres_meses.keys()), default=list(trimestres_meses.keys()))
-
-meses_disponibles = sorted(set(m for q in trimestres_sel for m in trimestres_meses[q]))
-
-with colf2:
-    meses_sel = st.multiselect("Mes", options=meses_disponibles, default=meses_disponibles)
+# --- Filtro por Mes (solo para Gráfico 1)
+meses_disponibles = df["Mes"].unique()
+meses_sel = st.multiselect("Filtrar por mes", options=meses_disponibles, default=meses_disponibles)
 
 # Filtrar para gráfico 1
 df_filtrado = df[df["Mes"].isin(meses_sel)]
@@ -71,7 +57,7 @@ kpi_text = (
 fig1.add_annotation(
     text=kpi_text,
     xref="paper", yref="paper",
-    x=1.28, y=0.6,
+    x=1.28, y=0.7,
     showarrow=False,
     align="left",
     font=dict(size=12),
