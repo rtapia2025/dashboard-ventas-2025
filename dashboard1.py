@@ -4,7 +4,6 @@ import streamlit as st
 import plotly.graph_objects as go
 
 df = pd.read_excel("Ventas-PROMELSA.xlsx", sheet_name="data1")
-df["Fac_backlog"] = df["Fac_backlog"].fillna(0)
 df["Facturado_total"] = df["Facturado"]
 df["GAP_calc"] = df["Meta"] - df["Facturado_total"]
 
@@ -25,7 +24,7 @@ df_filtrado = df[df["Trimestre"].isin(filtro_q) & df["Mes"].isin(filtro_mes)]
 
 fig = go.Figure()
 fig.add_trace(go.Bar(x=df_filtrado["Mes"], y=df_filtrado["Meta"], name='Meta', marker_color='skyblue'))
-fig.add_trace(go.Bar(x=df_filtrado["Mes"], y=df_filtrado["Facturado_total"], name='Facturado + Backlog', marker_color='limegreen'))
+fig.add_trace(go.Bar(x=df_filtrado["Mes"], y=df_filtrado["Facturado_total"], name='Facturado', marker_color='limegreen'))
 
 for i, row in df_filtrado.iterrows():
     if row["GAP_calc"] > 0:
