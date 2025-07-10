@@ -76,7 +76,7 @@ fig1.add_annotation(
     align="left",
     font=dict(size=12),
     bgcolor="white",
-    bordercolor="black",
+    bordercolor="white",
     borderwidth=1
 )
 
