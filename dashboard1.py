@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 # Leer archivo Excel
 st.set_page_config(layout="wide", page_title="Dashboard Ventas 2025")
-st.title("📊 Dashboard de Ventas 2025 | PROMELSA")
+st.title("📊 Dashboard de Ventas | 2025")
 
 # Leer Excel
 @st.cache_data
@@ -57,18 +57,18 @@ kpi_text = (
 fig1.add_annotation(
     text=kpi_text,
     xref="paper", yref="paper",
-    x=1.08, y=0.9,
+    x=1.28, y=0.5,
     showarrow=False,
     align="left",
     font=dict(size=12),
     bgcolor="white",
-    bordercolor="black",
+    bordercolor="white",
     borderwidth=1
 )
 
 fig1.update_layout(
     barmode='group',
-    title="Meta vs Facturado (+Backlog) por Mes",
+    title="Meta vs Facturado por Mes",
     yaxis_title="Monto ($.)",
     xaxis_title="Mes",
     height=500,
