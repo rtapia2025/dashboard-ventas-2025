@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 # Leer archivo Excel
 st.set_page_config(layout="wide", page_title="Dashboard Ventas 2025")
-st.markdown("<h3 style='margin-top:-12;'>📊 Dashboard de Ventas | 2025</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='margin-top:-52;'>📊 Dashboard de Ventas | 2025</h3>", unsafe_allow_html=True)
 
 # Leer Excel
 @st.cache_data
