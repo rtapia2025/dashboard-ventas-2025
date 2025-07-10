@@ -57,7 +57,7 @@ kpi_text = (
 fig1.add_annotation(
     text=kpi_text,
     xref="paper", yref="paper",
-    x=1, y=0.5,
+    x=3, y=0.5,
     showarrow=False,
     align="left",
     font=dict(size=12),
