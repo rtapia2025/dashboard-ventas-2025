@@ -1,14 +1,20 @@
-
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 
-df = pd.read_excel("Ventas-PROMELSA.xlsx", sheet_name="data1")
-df["Facturado_total"] = df["Facturado"]
-df["GAP_calc"] = df["Meta"] - df["Facturado_total"]
-
+# Leer archivo Excel
 st.set_page_config(layout="wide", page_title="Dashboard Ventas 2025")
 st.title("📊 Dashboard de Ventas | 2025")
+
+# Leer Excel
+@st.cache_data
+def cargar_datos():
+    df = pd.read_excel("Ventas-PROMELSA.xlsx", sheet_name="data1")
+    df["Facturado_total"] = df["Facturado"]
+    df["GAP_calc"] = df["Meta"] - df["Facturado_total"]
+    return df
+
+df = cargar_datos()
 
 # Filtros
 col1, col2 = st.columns(2)
@@ -22,24 +28,46 @@ with col2:
 
 df_filtrado = df[df["Trimestre"].isin(filtro_q) & df["Mes"].isin(filtro_mes)]
 
-# Aquí defines tus 9 gráficos (puedes personalizarlos más adelante)
-def crear_grafico_barras(x, y, titulo, color):
-    fig = go.Figure()
-    fig.add_trace(go.Bar(x=x, y=y, marker_color=color))
-    fig.update_layout(title=titulo, height=300)
-    return fig
+# --- Gráfico 1: Meta vs Facturado + GAP resaltado
+fig1 = go.Figure()
+fig1.add_trace(go.Bar(x=df_filtrado["Mes"], y=df_filtrado["Meta"], name='Meta', marker_color='skyblue'))
+fig1.add_trace(go.Bar(x=df_filtrado["Mes"], y=df_filtrado["Facturado_total"], name='Facturado', marker_color='limegreen'))
 
-fig1 = crear_grafico_barras(df_filtrado["Mes"], df_filtrado["Meta"], "Meta por Mes", "skyblue")
-fig2 = crear_grafico_barras(df_filtrado["Mes"], df_filtrado["Facturado"], "Facturado por Mes", "limegreen")
-fig3 = crear_grafico_barras(df_filtrado["Mes"], df_filtrado["GAP_calc"], "GAP por Mes", "red")
-fig4 = crear_grafico_barras(df_filtrado["Trimestre"], df_filtrado["Meta"], "Meta por Trimestre", "blue")
-fig5 = crear_grafico_barras(df_filtrado["Trimestre"], df_filtrado["Facturado"], "Facturado por Trimestre", "green")
-fig6 = crear_grafico_barras(df_filtrado["Trimestre"], df_filtrado["GAP_calc"], "GAP por Trimestre", "crimson")
-fig7 = crear_grafico_barras(df_filtrado["Mes"], df_filtrado["Facturado"].cumsum(), "Facturado Acumulado", "orange")
-fig8 = crear_grafico_barras(df_filtrado["Mes"], (df_filtrado["Facturado"]/df_filtrado["Meta"])*100, "Cumplimiento (%)", "purple")
-fig9 = crear_grafico_barras(df_filtrado["Mes"], df_filtrado["Facturado_total"], "Facturado + Backlog (si aplica)", "teal")
+for i, row in df_filtrado.iterrows():
+    if row["GAP_calc"] > 0:
+        fig1.add_trace(go.Scatter(
+            x=[row["Mes"]],
+            y=[row["Meta"]],
+            mode='markers+text',
+            text=[f"-{int(row['GAP_calc']):,}"],
+            textposition="top center",
+            marker=dict(color="red", size=10),
+            showlegend=False
+        ))
 
-# Grilla de 3 columnas x 3 filas
+fig1.update_layout(
+    barmode='group',
+    title="Meta vs Facturado (+Backlog) por Mes",
+    yaxis_title="Monto ($.)",
+    xaxis_title="Mes",
+    height=400
+)
+
+# --- Gráficos de marcador de posición (pendientes de personalizar)
+def placeholder_grafico(n):
+    return go.Figure().update_layout(title=f"Gráfico {n} (pendiente)", height=300)
+
+fig2 = placeholder_grafico(2)
+fig3 = placeholder_grafico(3)
+fig4 = placeholder_grafico(4)
+fig5 = placeholder_grafico(5)
+fig6 = placeholder_grafico(6)
+fig7 = placeholder_grafico(7)
+fig8 = placeholder_grafico(8)
+fig9 = placeholder_grafico(9)
+
+# --- Mostrar 9 gráficos (3 columnas x 3 filas)
+
 def mostrar_fila(fig_a, fig_b, fig_c):
     col1, col2, col3 = st.columns(3)
     with col1: st.plotly_chart(fig_a, use_container_width=True)
@@ -55,7 +83,7 @@ mostrar_fila(fig4, fig5, fig6)
 st.markdown("## 🔹 Fila 3")
 mostrar_fila(fig7, fig8, fig9)
 
-# KPIs (opcional)
+# --- KPIs resumen
 st.markdown("---")
 st.subheader("📌 Resumen")
 kpi1, kpi2, kpi3 = st.columns(3)
