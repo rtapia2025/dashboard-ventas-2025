@@ -46,28 +46,18 @@ for i, row in df_filtrado.iterrows():
             showlegend=False
         ))
 
-# Agregar KPIs como anotaciones al costado de la leyenda
+# Agregar KPIs como anotaciones al costado de la leyenda (incluye % avance)
 kpi_text = (
     f"<b>Total Meta</b><br>$ {meta_total:,.2f}" +
     f"<br><b>Total Facturado</b><br>$ {fact_total:,.2f}" +
-    f"<br><b>GAP Total</b><br><span style='color:{'red' if gap_total > 0 else 'blue'};'>$ {gap_total:,.2f}</span>"
-)
-
-fig1.add_annotation(
-    text=f"Avance: {avance_pct:.1f}%",
-    xref="paper", yref="paper",
-    x=1.02, y=1.05,
-    showarrow=False,
-    font=dict(size=14, color="green"),
-    bgcolor="white",
-    bordercolor="black",
-    borderwidth=1
+    f"<br><b>GAP Total</b><br><span style='color:{'red' if gap_total > 0 else 'blue'};'>$ {gap_total:,.2f}</span>" +
+    f"<br><b>Avance</b><br>{avance_pct:.1f}%"
 )
 
 fig1.add_annotation(
     text=kpi_text,
     xref="paper", yref="paper",
-    x=1.02, y=0.6,
+    x=1.08, y=0.9,
     showarrow=False,
     align="left",
     font=dict(size=12),
@@ -82,7 +72,7 @@ fig1.update_layout(
     yaxis_title="Monto ($.)",
     xaxis_title="Mes",
     height=500,
-    margin=dict(r=200)  # espacio a la derecha para anotaciones
+    margin=dict(r=250)  # más espacio a la derecha para anotaciones
 )
 
 # --- Gráficos de marcador de posición (pendientes de personalizar)
