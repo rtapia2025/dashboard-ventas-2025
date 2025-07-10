@@ -17,18 +17,13 @@ def cargar_datos():
 df = cargar_datos()
 
 # Filtros
-col1, col2 = st.columns(2)
 meses_disponibles = df["Mes"].unique()
-qs_disponibles = df["Trimestre"].unique()
 
-with col1:
-    filtro_q = st.multiselect("Filtrar por trimestre (Trimestre)", qs_disponibles, default=qs_disponibles)
-with col2:
-    filtro_mes = st.multiselect("Filtrar por mes", meses_disponibles, default=meses_disponibles)
+filtro_mes = st.multiselect("Filtrar por mes", meses_disponibles, default=meses_disponibles)
 
-df_filtrado = df[df["Trimestre"].isin(filtro_q) & df["Mes"].isin(filtro_mes)]
+df_filtrado = df[df["Mes"].isin(filtro_mes)]
 
-# --- Gráfico 1: Meta vs Facturado + GAP resaltado
+# --- Gráfico 1: Meta vs Facturado + GAP
 fig1 = go.Figure()
 fig1.add_trace(go.Bar(x=df_filtrado["Mes"], y=df_filtrado["Meta"], name='Meta', marker_color='skyblue'))
 fig1.add_trace(go.Bar(x=df_filtrado["Mes"], y=df_filtrado["Facturado_total"], name='Facturado', marker_color='limegreen'))
