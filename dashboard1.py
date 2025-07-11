@@ -106,12 +106,19 @@ clientes_clave = [
     "CIA MINERA COIMOLACHE SA"
 ]
 
-# --- Transformar data a formato largo (para graficar por mes)
+# --- Columnas de ventas mensuales
 columnas_meses = ['vta_enero', 'vta_febrero', 'vta_marzo', 'vta_abril', 'vta_mayo', 'vta_junio',
                   'vta_julio', 'vta_agosto', 'vta_setiembre', 'vta_octubre', 'vta_noviembre', 'vta_diciembre']
 
-df_cli_filtrado = df_cli[df_cli["Año"].isin(anios_sel)]
+# --- Filtros interactivos
+anios_disponibles = sorted(df_cli["Año"].unique())
+meses_disponibles = [col.replace("vta_", "").capitalize() for col in columnas_meses]
 
+anios_sel = st.multiselect("Filtrar por año", options=anios_disponibles, default=anios_disponibles)
+meses_sel = st.multiselect("Filtrar por mes", options=meses_disponibles, default=meses_disponibles)
+
+# --- Filtrar data base
+df_cli_filtrado = df_cli[df_cli["Año"].isin(anios_sel)]
 df_largo = df_cli_filtrado.melt(
     id_vars=["razon_social", "Año"],
     value_vars=columnas_meses,
@@ -119,33 +126,47 @@ df_largo = df_cli_filtrado.melt(
     value_name="Ventas"
 )
 
+# Limpiar nombres
 df_largo["Mes"] = df_largo["Mes"].str.replace("vta_", "").str.capitalize()
+df_largo["Etiqueta"] = df_largo["Mes"] + " - " + df_largo["Año"]
 
-# Agrupar y filtrar clientes clave
-df_agrupado = df_largo.groupby(["razon_social", "Año", "Mes"], as_index=False)["Ventas"].sum()
-df_agrupado = df_agrupado[df_agrupado["razon_social"].isin(clientes_clave)]
+# Filtrar por meses seleccionados y clientes clave
+df_largo = df_largo[df_largo["Mes"].isin(meses_sel)]
+df_largo = df_largo[df_largo["razon_social"].isin(clientes_clave)]
 
+# Agrupar por cliente y etiqueta (mes-año)
+df_agrupado = df_largo.groupby(["razon_social", "Etiqueta"], as_index=False)["Ventas"].sum()
+
+# Ordenar etiquetas cronológicamente
 orden_meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre']
-df_agrupado["Mes"] = pd.Categorical(df_agrupado["Mes"], categories=orden_meses, ordered=True)
-df_agrupado.sort_values("Mes", inplace=True)
 
-# --- Gráfico 2
+# Crear columna auxiliar para ordenar etiquetas (año + número de mes)
+mes_a_num = {mes: str(i+1).zfill(2) for i, mes in enumerate(orden_meses)}
+df_agrupado["orden"] = df_agrupado["Etiqueta"].apply(
+    lambda x: x.split(" - ")[1] + "-" + mes_a_num[x.split(" - ")[0]]
+)
+df_agrupado = df_agrupado.sort_values("orden")
+
+# --- Gráfico
 fig2 = go.Figure()
-for cliente in clientes_clave:
-    df_temp = df_agrupado[df_agrupado["razon_social"] == cliente]
+
+etiquetas_ordenadas = df_agrupado["Etiqueta"].unique()
+
+for etiqueta in etiquetas_ordenadas:
+    df_temp = df_agrupado[df_agrupado["Etiqueta"] == etiqueta]
     fig2.add_trace(go.Bar(
-        x=df_temp["Mes"],
+        x=df_temp["razon_social"],
         y=df_temp["Ventas"],
-        name=cliente
+        name=etiqueta
     ))
 
 fig2.update_layout(
     barmode='group',
-    title=f"Ventas por Cliente por Mes ({', '.join(anios_sel)})",
-    xaxis_title="Mes",
+    title=f"Ventas por Cliente - por Mes y Año",
+    xaxis_title="Cliente",
     yaxis_title="Monto de Ventas ($)",
-    height=500
+    height=600
 )
 
 fig3 = placeholder_grafico(3)
