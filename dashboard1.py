@@ -1,9 +1,20 @@
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+from datetime import datetime
 
 # Leer archivo Excel
 st.set_page_config(layout="wide", page_title="Dashboard Ventas 2025")
+
+# Obtener año actual y meses hasta la fecha
+anio_actual = datetime.now().year
+mes_actual_num = datetime.now().month
+
+orden_meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+               'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre']
+meses_a_la_fecha = orden_meses[:mes_actual_num]
+
+
 st.markdown("<h2 style='margin-top:0;'>📊 Dashboard de Ventas | 2025</h2>", unsafe_allow_html=True)
 
 # Leer Excel
@@ -25,12 +36,8 @@ def cargar_fac_cli():
 df_cli = cargar_fac_cli()
 
 
-# --- Filtro por Mes (solo para Gráfico 1)
-meses_disponibles = df["Mes"].unique()
-meses_sel = st.multiselect("Filtrar por mes", options=meses_disponibles, default=meses_disponibles)
+df_filtrado = df[(df["Año"] == anio_sel) & (df["Mes"].isin(meses_sel))]
 
-# Filtrar para gráfico 1
-df_filtrado = df[df["Mes"].isin(meses_sel)]
 
 # Calcular KPIs
 total_meta = df_filtrado['Meta'].sum()
@@ -88,9 +95,9 @@ fig1.update_layout(
 def placeholder_grafico(n):
     return go.Figure().update_layout(title=f"Gráfico {n} (pendiente)", height=300)
 
-# --- Filtro por año
-anios_disponibles = sorted(df_cli["Año"].unique())
-anios_sel = st.multiselect("Filtrar por año", options=anios_disponibles, default=anios_disponibles)
+# Filtrar base de clientes por año y meses seleccionados
+df_cli_filtrado = df_cli[df_cli["Año"] == anio_sel]
+
 
 # --- Lista de clientes clave a mostrar
 clientes_clave = [
@@ -105,17 +112,6 @@ clientes_clave = [
     "MINERA LA ZANJA S.R.L.",
     "CIA MINERA COIMOLACHE SA"
 ]
-
-# --- Columnas de ventas mensuales
-columnas_meses = ['vta_enero', 'vta_febrero', 'vta_marzo', 'vta_abril', 'vta_mayo', 'vta_junio',
-                  'vta_julio', 'vta_agosto', 'vta_setiembre', 'vta_octubre', 'vta_noviembre', 'vta_diciembre']
-
-# --- Filtros interactivos
-anios_disponibles = sorted(df_cli["Año"].unique())
-meses_disponibles = [col.replace("vta_", "").capitalize() for col in columnas_meses]
-
-anios_sel = st.multiselect("Filtrar por año (clientes)", options=anios_disponibles, default=anios_disponibles, key="anio_cliente")
-meses_sel = st.multiselect("Filtrar por mes (clientes)", options=meses_disponibles, default=meses_disponibles, key="mes_cliente")
 
 # --- Filtrar data base
 df_cli_filtrado = df_cli[df_cli["Año"].isin(anios_sel)]
