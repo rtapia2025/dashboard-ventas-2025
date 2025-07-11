@@ -114,8 +114,8 @@ columnas_meses = ['vta_enero', 'vta_febrero', 'vta_marzo', 'vta_abril', 'vta_may
 anios_disponibles = sorted(df_cli["Año"].unique())
 meses_disponibles = [col.replace("vta_", "").capitalize() for col in columnas_meses]
 
-anios_sel = st.multiselect("Filtrar por año", options=anios_disponibles, default=anios_disponibles)
-meses_sel = st.multiselect("Filtrar por mes", options=meses_disponibles, default=meses_disponibles)
+anios_sel = st.multiselect("Filtrar por año (clientes)", options=anios_disponibles, default=anios_disponibles, key="anio_cliente")
+meses_sel = st.multiselect("Filtrar por mes (clientes)", options=meses_disponibles, default=meses_disponibles, key="mes_cliente")
 
 # --- Filtrar data base
 df_cli_filtrado = df_cli[df_cli["Año"].isin(anios_sel)]
