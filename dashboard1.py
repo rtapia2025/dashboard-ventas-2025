@@ -16,6 +16,15 @@ def cargar_datos():
 
 df = cargar_datos()
 
+@st.cache_data
+def cargar_fac_cli():
+    df_cli = pd.read_excel("Ventas-PROMELSA.xlsx", sheet_name="fac_cli")
+    df_cli["Año"] = df_cli["Año"].astype(str)
+    return df_cli
+
+df_cli = cargar_fac_cli()
+
+
 # --- Filtro por Mes (solo para Gráfico 1)
 meses_disponibles = df["Mes"].unique()
 meses_sel = st.multiselect("Filtrar por mes", options=meses_disponibles, default=meses_disponibles)
@@ -79,7 +88,66 @@ fig1.update_layout(
 def placeholder_grafico(n):
     return go.Figure().update_layout(title=f"Gráfico {n} (pendiente)", height=300)
 
-fig2 = placeholder_grafico(2)
+# --- Filtro por año
+anios_disponibles = sorted(df_cli["Año"].unique())
+anios_sel = st.multiselect("Filtrar por año", options=anios_disponibles, default=anios_disponibles)
+
+# --- Lista de clientes clave a mostrar
+clientes_clave = [
+    "MINERA BORO MISQUICHILCA S.A.",
+    "LA ARENA S.A.",
+    "CIA MINERA PODEROSA S.A.",
+    "CONSORCIO MINERO HORIZONTE S.A.",
+    "MINERA AURÍFERA RETAMAS S.A.",
+    "MINERA YANACOCHA S.R.L.",
+    "SHAHUINDO S.A.C.",
+    "GOLD FIELDS LA CIMA S.A.",
+    "MINERA LA ZANJA S.R.L.",
+    "CIA MINERA COIMOLACHE SA"
+]
+
+# --- Transformar data a formato largo (para graficar por mes)
+columnas_meses = ['vta_enero', 'vta_febrero', 'vta_marzo', 'vta_abril', 'vta_mayo', 'vta_junio',
+                  'vta_julio', 'vta_agosto', 'vta_setiembre', 'vta_octubre', 'vta_noviembre', 'vta_diciembre']
+
+df_cli_filtrado = df_cli[df_cli["Año"].isin(anios_sel)]
+
+df_largo = df_cli_filtrado.melt(
+    id_vars=["razon_social", "Año"],
+    value_vars=columnas_meses,
+    var_name="Mes",
+    value_name="Ventas"
+)
+
+df_largo["Mes"] = df_largo["Mes"].str.replace("vta_", "").str.capitalize()
+
+# Agrupar y filtrar clientes clave
+df_agrupado = df_largo.groupby(["razon_social", "Año", "Mes"], as_index=False)["Ventas"].sum()
+df_agrupado = df_agrupado[df_agrupado["razon_social"].isin(clientes_clave)]
+
+orden_meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+               'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre']
+df_agrupado["Mes"] = pd.Categorical(df_agrupado["Mes"], categories=orden_meses, ordered=True)
+df_agrupado.sort_values("Mes", inplace=True)
+
+# --- Gráfico 2
+fig2 = go.Figure()
+for cliente in clientes_clave:
+    df_temp = df_agrupado[df_agrupado["razon_social"] == cliente]
+    fig2.add_trace(go.Bar(
+        x=df_temp["Mes"],
+        y=df_temp["Ventas"],
+        name=cliente
+    ))
+
+fig2.update_layout(
+    barmode='group',
+    title=f"Ventas por Cliente por Mes ({', '.join(anios_sel)})",
+    xaxis_title="Mes",
+    yaxis_title="Monto de Ventas ($)",
+    height=500
+)
+
 fig3 = placeholder_grafico(3)
 fig4 = placeholder_grafico(4)
 fig5 = placeholder_grafico(5)
