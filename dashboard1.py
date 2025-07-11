@@ -1,7 +1,24 @@
+df = cargar_datos()
+df_cli = cargar_fac_cli()
+
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+
 from datetime import datetime
+
+anio_actual = datetime.now().year
+mes_actual_num = datetime.now().month
+orden_meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+               'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre']
+meses_a_la_fecha = orden_meses[:mes_actual_num]
+
+# Filtros globales
+st.sidebar.header("🎯 Filtros generales")
+anios_disponibles = sorted(df["Año"].unique())  # Usa df, no df_cli
+anio_sel = st.sidebar.selectbox("Seleccionar año", options=anios_disponibles, index=anios_disponibles.index(str(anio_actual)))
+meses_sel = st.sidebar.multiselect("Seleccionar meses", options=orden_meses, default=meses_a_la_fecha)
+
 
 # Leer archivo Excel
 st.set_page_config(layout="wide", page_title="Dashboard Ventas 2025")
