@@ -9,7 +9,7 @@ st.markdown("<h2 style='margin-top:0;'>📊 Dashboard de Ventas | 2025</h2>", un
 # Leer Excel
 @st.cache_data
 def cargar_datos():
-    df = pd.read_excel("Ventas-PROMELSA.xlsx", sheet_name="data1")
+    df = pd.read_excel("Ventas-PROMELSA.xlsx", sheet_name="meta_fac")
     df["Facturado_total"] = df["Facturado"]
     df["GAP_calc"] = df["Meta"] - df["Facturado_total"]
     return df
