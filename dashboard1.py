@@ -142,8 +142,8 @@ for etiqueta in df_agrupado["Etiqueta"].unique():
     ))
 
 fig2.update_layout(
-    barmode='group',
-    title="Ventas por Cliente por Mes y Año",
+    barmode='stack',
+    title="Ventas por Cliente por Mes y Año (Apilado)",
     xaxis_title="Cliente",
     yaxis_title="Monto de Ventas ($)",
     height=600
